@@ -1,0 +1,76 @@
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import User from 'App/Models/User'
+import { DateTime } from 'luxon'
+
+export default class UsersController {
+  public async create({ auth, request, response }: HttpContextContract) {
+    const formSchema = schema.create({
+      username: schema.string(),
+      email: schema.string({}, [rules.email()]),
+      password: schema.string({}, [
+        rules.regex(
+          new RegExp(
+            '^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{8,}$'
+          )
+        ),
+      ]),
+      rememberMe: schema.boolean(),
+    })
+
+    const form = await request.validate({ schema: formSchema })
+
+    if (await User.findBy('email', form.email)) {
+      return response.badRequest('Email already exists')
+    }
+
+    const id = await User.generateId()
+    try {
+      await User.create({
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        email: form.email,
+        username: form.username,
+        password: form.password,
+        id,
+      })
+    } catch {
+      return response.internalServerError('Could not create user, please try again.')
+    }
+
+    try {
+      await auth.use('web').loginViaId(id, form.rememberMe)
+    } catch {
+      return response.redirect('/auth/login')
+    }
+
+    return 'Successfully created user'
+  }
+
+  public async me({ auth, response }: HttpContextContract) {
+    if (!auth.use('web').isAuthenticated) {
+      return response.unauthorized('You are not logged in')
+    }
+
+    const user = auth.use('web').user!
+
+    response.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    })
+  }
+
+  public async get({ request, response }: HttpContextContract) {
+    const user = await User.find(request.param('id'))
+
+    if (!user) {
+      return response.badRequest('User does not exist')
+    }
+
+    response.json({
+      id: user.id,
+      username: user.username,
+    })
+  }
+}

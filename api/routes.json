@@ -1,0 +1,25 @@
+{
+  "root": [
+    {
+      "methods": ["HEAD", "GET"],
+      "name": "drive.local.serve",
+      "pattern": "/uploads/*",
+      "handler": "Closure",
+      "middleware": []
+    },
+    {
+      "methods": ["HEAD", "GET"],
+      "name": "",
+      "pattern": "/",
+      "handler": "Closure",
+      "middleware": []
+    },
+    {
+      "methods": ["HEAD", "GET"],
+      "name": "",
+      "pattern": "/api/hello",
+      "handler": "HelloWorld.show",
+      "middleware": []
+    }
+  ]
+}

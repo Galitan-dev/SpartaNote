@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "api"
+		}
+	],
+	"settings": {
+		"emeraldwalk.runonsave": {
+			"commands": [
+				{
+					"cmd": "yarn format"
+				}
+			]
+		},
+		"cSpell.words": [
+			"Pronote"
+		]
+	}
+}

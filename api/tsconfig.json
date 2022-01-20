@@ -1,0 +1,20 @@
+{
+  "extends": "./node_modules/adonis-preset-ts/tsconfig",
+  "include": ["**/*"],
+  "exclude": ["node_modules", "build"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "build",
+    "rootDir": "./",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "paths": {
+      "App/*": ["app/*"],
+      "Config/*": ["config/*"],
+      "Contracts/*": ["contracts/*"],
+      "Database/*": ["database/*"],
+      "Pronote/*": ["pronote-api/*"]
+    },
+    "types": ["@adonisjs/core", "@adonisjs/repl", "@adonisjs/auth", "@adonisjs/lucid"]
+  }
+}
