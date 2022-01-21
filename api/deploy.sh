@@ -9,7 +9,7 @@ git clone https://galitan-dev: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@github.co
 cd /app/api
 
 echo Installing packages
-yarn --production
+yarn --production --ignore-platform
 
 _term() {
     echo "Caught SIGTERM signal!" 
