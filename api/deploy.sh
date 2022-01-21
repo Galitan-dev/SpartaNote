@@ -23,6 +23,9 @@ catch() {
 trap '_term' SIGTERM
 trap 'catch' ERR
 
+ls -al
+node ace
+
 echo Launching app
 yarn run dev &
 
