@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "api"
+		},
+		{
+			"path": "."
 		}
 	],
 	"settings": {
@@ -13,6 +16,7 @@
 			]
 		},
 		"cSpell.words": [
+			"adonisjs",
 			"Pronote"
 		]
 	}
