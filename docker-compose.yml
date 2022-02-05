@@ -1,30 +1,29 @@
 version: "3"
+
+x-db-variables: &db-variables
+  POSTGRES_HOST: sparta-note-db
+  POSTGRES_PORT: 5432
+  POSTGRES_USER: api
+  POSTGRES_DB_NAME: sparta-note
+  POSTGRES_PASSWORD: 8/nrxbYfJM+oo+VhlSvJbYntKr8z/NWZsfYbZbuHKMInzYK62aOnquAIy4TJs4yD6pA2y/TruM6wG+eHMjiKGQ==à
+
 services:
   api:
     container_name: sparta-note-api
     build:
       context: ./api
       dockerfile: Dockerfile
+      args:
+        PORT: 6666
+        <<: *db-variables
     ports:
-    - 5555:5555
+    - 6666:6666
     depends_on:
       - db
-    environment:
-      PORT: 5555
-      GITHUB_USER: galitan-dev
-      GITHUB_TOKEN: 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
-      PG_HOST: 127.0.0.1
-      PG_PORT: 5432
-      PG_USER: api
-      PG_DB_NAME: sparta-note
-      PG_PASSWORD: 8/nrxbYfJM+oo+VhlSvJbYntKr8z/NWZsfYbZbuHKMInzYK62aOnquAIy4TJs4yD6pA2y/TruM6wG+eHMjiKGQ==à
   db:
     container_name: sparta-note-db
     image: postgres
     restart: always
     ports:
       - 5432:5432
-    environment:
-      POSTGRES_DB: sparta-note
-      POSTGRES_USER: api
-      POSTGRES_PASSWORD: 8/nrxbYfJM+oo+VhlSvJbYntKr8z/NWZsfYbZbuHKMInzYK62aOnquAIy4TJs4yD6pA2y/TruM6wG+eHMjiKGQ==à
+    environment: *db-variables

@@ -34,7 +34,8 @@ export default class UsersController {
         password: form.password,
         id,
       })
-    } catch {
+    } catch (err) {
+      console.error(err)
       return response.internalServerError('Could not create user, please try again.')
     }
 
