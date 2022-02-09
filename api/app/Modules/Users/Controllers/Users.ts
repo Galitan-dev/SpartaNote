@@ -1,5 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import User from 'App/Models/User'
 import { DateTime } from 'luxon'
 
@@ -42,7 +42,7 @@ export default class UsersController {
     try {
       await auth.use('web').loginViaId(id, form.rememberMe)
     } catch {
-      return response.redirect('/auth/login')
+      return response.internalServerError("Created user, but couldn't login. Please try manually")
     }
 
     return 'Successfully created user'
