@@ -49,13 +49,14 @@ export default class UsersController {
     return 'Successfully created user'
   }
 
-  public async me({ request, auth, response }: HttpContextContract) {
-    console.log(request.cookiesList())
-    if (!auth.use('web').isAuthenticated) {
+  public async me({ auth, response }: HttpContextContract) {
+    let user: User
+    try {
+      user = await auth.use('web').authenticate()
+    } catch (err) {
+      console.error(err)
       return response.unauthorized('You are not logged in')
     }
-
-    const user = auth.use('web').user!
 
     response.json({
       id: user.id,
