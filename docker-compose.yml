@@ -4,7 +4,7 @@ x-db-variables: &db-variables
   POSTGRES_HOST: sparta-note-db
   POSTGRES_PORT: 5432
   POSTGRES_USER: api
-  POSTGRES_DB_NAME: sparta-note
+  POSTGRES_DB: sparta-note
   POSTGRES_PASSWORD: 8/nrxbYfJM+oo+VhlSvJbYntKr8z/NWZsfYbZbuHKMInzYK62aOnquAIy4TJs4yD6pA2y/TruM6wG+eHMjiKGQ==à
 
 services:
