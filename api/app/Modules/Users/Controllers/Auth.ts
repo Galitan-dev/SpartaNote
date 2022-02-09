@@ -13,7 +13,8 @@ export default class AuthController {
 
     try {
       await auth.use('web').attempt(credentials.email, credentials.password, credentials.rememberMe)
-    } catch {
+    } catch (err) {
+      console.error(err)
       response.unauthorized('Invalid credentials')
     }
 

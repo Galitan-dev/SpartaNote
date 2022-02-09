@@ -41,7 +41,8 @@ export default class UsersController {
 
     try {
       await auth.use('web').loginViaId(id, form.rememberMe)
-    } catch {
+    } catch (err) {
+      console.error(err)
       return response.internalServerError("Created user, but couldn't login. Please try manually")
     }
 

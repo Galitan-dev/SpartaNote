@@ -6,18 +6,5 @@
 		{
 			"path": "."
 		}
-	],
-	"settings": {
-		"emeraldwalk.runonsave": {
-			"commands": [
-				{
-					"cmd": "yarn format"
-				}
-			]
-		},
-		"cSpell.words": [
-			"adonisjs",
-			"Pronote"
-		]
-	}
+	]
 }
