@@ -49,7 +49,8 @@ export default class UsersController {
     return 'Successfully created user'
   }
 
-  public async me({ auth, response }: HttpContextContract) {
+  public async me({ request, auth, response }: HttpContextContract) {
+    console.log(request.cookiesList())
     if (!auth.use('web').isAuthenticated) {
       return response.unauthorized('You are not logged in')
     }
