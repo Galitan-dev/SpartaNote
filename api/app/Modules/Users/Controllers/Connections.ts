@@ -1,3 +1,4 @@
+import Encryption from '@ioc:Adonis/Core/Encryption'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import User from 'App/Models/User'
@@ -94,13 +95,15 @@ export default class ConnectionsController {
       return response.notFound('Connection not found')
     }
 
+    let password: string = Encryption.decrypt(con.password)!
+
     response.json({
       id: con.userId,
       userId: con.userId,
       username: con.username,
-      password: con.password
+      password: password
         .split('')
-        .map((c, i) => ([0, 1, con!.password.length - 1].includes(i) ? c : '*')),
+        .map((c, i) => ([0, 1, password.length - 1].includes(i) ? c : '*')),
       url: con.url,
       cas: con.cas,
     })
