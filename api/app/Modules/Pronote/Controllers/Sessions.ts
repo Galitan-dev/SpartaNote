@@ -34,7 +34,7 @@ export default class SessionsController {
       return response.notFound('Connection not found')
     }
 
-    if (this.sessionManager.getSession(con.id)) {
+    if (this.sessionManager.get(con.id)) {
       return response.abort('Session already opened')
     }
 
@@ -75,10 +75,7 @@ export default class SessionsController {
         /^(,?(params|user|advancedUser|homeworks|marks|timetable|evaluations|files|absences|menu|infos))*$/g
       )
     ) {
-      response.badRequest({
-        code: 400,
-        message: 'scope validation failed, please refer to the documentation',
-      })
+      response.badRequest('scope validation failed, please refer to the documentation')
       return
     }
 
@@ -102,11 +99,7 @@ export default class SessionsController {
       return response.notFound('Connection not found')
     }
 
-    if (this.sessionManager.getSession(con.id)) {
-      return response.abort('Session already opened')
-    }
-
-    let session = await this.sessionManager.getSession(con.id)
+    let session = await this.sessionManager.get(con.id)
 
     if (!session) {
       return response.abort('Session not yet opened')
@@ -142,5 +135,63 @@ export default class SessionsController {
     }
 
     return scopedSession
+  }
+
+  public async close({ request, response, auth }: HttpContextContract) {
+    let user: User
+    try {
+      user = await auth.use('web').authenticate()
+    } catch (err) {
+      console.error(err)
+      return response.unauthorized('You are not logged in')
+    }
+
+    let con: UserConnection | null
+    try {
+      con = await UserConnection.find(request.param('id'))
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to get connection')
+    }
+
+    if (!con || con.userId !== user.id) {
+      return response.notFound('Connection not found')
+    }
+
+    let session = await this.sessionManager.get(con.id)
+
+    if (!session) {
+      return response.abort('Session not yet opened')
+    }
+
+    try {
+      this.sessionManager.close(con.id)
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to close session')
+    }
+
+    return 'Session successfully closed'
+  }
+
+  public async list({ response, auth }: HttpContextContract) {
+    let user: User
+    try {
+      user = await auth.use('web').authenticate()
+    } catch (err) {
+      console.error(err)
+      return response.unauthorized('You are not logged in')
+    }
+
+    return this.sessionManager.list(user.id).map(({ connectionId, pronote }) => ({
+      id: connectionId,
+      user: {
+        id: pronote.user?.id,
+        name: pronote.user?.name,
+        establishment: pronote.user?.establishment,
+        avatar: pronote.user?.avatar,
+        class: pronote.user?.studentClass,
+      },
+    }))
   }
 }

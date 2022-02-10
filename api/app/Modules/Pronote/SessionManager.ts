@@ -21,8 +21,21 @@ export default class SessionManager {
     return session
   }
 
-  public getSession(connectionId: number): Session | undefined {
+  public get(connectionId: number): Session | undefined {
     return this.sessions.find((s) => s.connectionId === connectionId)
+  }
+
+  public list(userId: number): Session[] {
+    return this.sessions.filter((s) => s.userId === userId)
+  }
+
+  public async close(connectionId: number) {
+    const [session] = this.sessions.splice(
+      this.sessions.findIndex((s) => s.connectionId === connectionId),
+      1
+    )
+
+    await session.pronote.logout()
   }
 }
 
