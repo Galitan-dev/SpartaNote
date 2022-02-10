@@ -107,9 +107,55 @@ export default class ConnectionsController {
       username: con.username,
       password: password
         .split('')
-        .map((c, i) => ([0, 1, password.length - 1].includes(i) ? c : '*')),
+        .map((c, i) => ([0, 1, password.length - 1].includes(i) ? c : '*'))
+        .join(''),
       url: con.url,
       cas: con.cas,
     })
+  }
+
+  public async update({ auth, response, request }: HttpContextContract) {
+    let user: User
+    try {
+      user = await auth.use('web').authenticate()
+    } catch (err) {
+      console.error(err)
+      return response.unauthorized('You are not logged in')
+    }
+
+    let con: UserConnection | null
+    try {
+      con = await UserConnection.find(request.param('id'))
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to get connection')
+    }
+
+    if (!con || con.userId !== user.id) {
+      return response.notFound('Connection not found')
+    }
+
+    const formSchema = schema.create({
+      cas: schema.enum.optional(casList),
+      url: schema.string.optional({}, [rules.pronoteUrl()]),
+      username: schema.string.optional(),
+      password: schema.string.optional(),
+    })
+
+    const form = await request.validate({ schema: formSchema })
+
+    con.cas = form.cas || con.cas
+    con.url = form.url || con.url
+    con.username = form.username || con.username
+    con.password = form.password || con.password
+
+    try {
+      await con.save()
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to save changes')
+    }
+
+    return 'Sucessfully updated'
   }
 }

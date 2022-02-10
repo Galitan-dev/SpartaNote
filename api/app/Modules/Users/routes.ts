@@ -13,8 +13,9 @@ Route.group(() => {
   }).prefix('/users')
 
   Route.group(() => {
-    Route.get('/:id', 'Connections.get')
-    Route.post('/create', 'Connections.create')
     Route.get('/', 'Connections.list')
+    Route.post('/create', 'Connections.create')
+    Route.get('/:id', 'Connections.get')
+    Route.post('/:id/update', 'Connections.update')
   }).prefix('/connections')
 }).namespace('App/Modules/Users/Controllers')
