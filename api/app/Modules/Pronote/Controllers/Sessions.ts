@@ -69,8 +69,6 @@ export default class SessionsController {
   }
 
   public async get({ request, response, auth }: HttpContextContract) {
-    const id = request.param('id')
-
     const scope = new URL(request.completeUrl(true)).searchParams.get('scope') || 'user'
     if (
       !scope.match(
