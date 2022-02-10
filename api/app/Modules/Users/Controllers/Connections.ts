@@ -4,7 +4,7 @@ import User from 'App/Models/User'
 import UserConnection from 'App/Models/UserConnection'
 import { casList } from 'Pronote/index'
 
-export default class UsersController {
+export default class ConnectionsController {
   public async create({ auth, request, response }: HttpContextContract) {
     let user: User
     try {
