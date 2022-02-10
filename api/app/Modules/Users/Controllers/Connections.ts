@@ -38,7 +38,7 @@ export default class ConnectionsController {
       return response.internalServerError('Could not create connection, please try again.')
     }
 
-    return 'Successfully created user'
+    return 'Successfully created connection'
   }
 
   public async list({ auth, response }: HttpContextContract) {
@@ -65,7 +65,8 @@ export default class ConnectionsController {
         username: con.username,
         password: con.password
           .split('')
-          .map((c, i) => ([0, 1, con.password.length - 1].includes(i) ? c : '*')),
+          .map((c, i) => ([0, 1, con.password.length - 1].includes(i) ? c : '*'))
+          .join(''),
         url: con.url,
         cas: con.cas,
       }))
