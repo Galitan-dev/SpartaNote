@@ -69,7 +69,7 @@ export default class UsersController {
     const user = await User.find(request.param('id'))
 
     if (!user) {
-      return response.badRequest('User does not exist')
+      return response.notFound('User does not exist')
     }
 
     response.json({

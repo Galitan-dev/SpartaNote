@@ -1,0 +1,48 @@
+/auth/login:
+  post:
+    tags:
+      - Auth
+      - AsGuest
+    summary: Login and start session using credentials
+    parameters:
+      - name: credentials
+        in: body
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+              example: 'galitan.dev@gmail.com'
+              required: true
+            password:
+              type: string
+              format: password
+              example: #PassWord123
+              required: true
+            rememberMe:
+              type: boolean
+              example: true
+              required: true
+    properties:
+      responses:
+        200:
+          description: Success
+          example:
+            message: Successfully logged in
+        401:
+          description: Unauthorized
+          example:
+            message: Invalid credentials
+
+/auth/logout:
+  get:
+    tags:
+      - Auth
+      - NeedAuthentication
+    summary: Logout and close curent session
+    properties:
+      responses:
+        200:
+          description: Success
+          example:
+            message: Successfully logged out

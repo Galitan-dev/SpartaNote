@@ -1,0 +1,340 @@
+/connections:
+  get:
+    tags:
+      - Connections
+      - NeedAuthentication
+    summary: List user connections
+    properties:
+      responses:
+        401:
+          description: Unauthorized
+          example:
+            message: You are not logged in
+        500:
+          description: Internal Server Error
+          example:
+            message: Unable to list connections
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 6247
+                    userId:
+                      type: integer
+                      example: 3623
+                    username:
+                      type: string
+                      example: g.coys1
+                    password:
+                      type: string
+                      format: hiddenPassword
+                      example: #P*********3
+                    url:
+                      type: string
+                      format: url
+                      example: https://41892za15.index-education/pronote
+                    cas:
+                      type: string
+                      enum:
+                        - ac-besancon
+                        - ac-bordeaux
+                        - ac-bordeaux2
+                        - ac-bordeaux3
+                        - ac-caen
+                        - ac-clermont
+                        - ac-dijon
+                        - ac-grenoble
+                        - ac-lille
+                        - ac-limoges
+                        - ac-lyon
+                        - ac-montpellier
+                        - ac-nancy-metz
+                        - ac-nantes
+                        - ac-orleans-tours
+                        - ac-poitiers
+                        - ac-reims
+                        - ac-rouen
+                        - ac-strasbourg
+                        - ac-toulouse
+                        - agora06
+                        - arsene76
+                        - atrium-sud
+                        - haute-garonne
+                        - hdf
+                        - iledefrance
+                        - seine-et-marne
+                        - somme
+                        - eure-normandie
+                        - parisclassenumerique
+                        - ljr-munich
+                        - toutatice
+                        - laclasse
+                        - lyceeconnecte
+                        - portail-famille
+                        - cybercolleges42
+                        - none
+
+/connections/create:
+  post:
+    tags:
+      - Connections
+      - NeedAuthentication
+    summary: Create a new connection for the current user
+    parameters:
+      - name: informations
+        in: body
+        required: true
+        schema:
+          properties:
+            cas:
+              type: string
+              required: true
+              enum:
+                - ac-besancon
+                - ac-bordeaux
+                - ac-bordeaux2
+                - ac-bordeaux3
+                - ac-caen
+                - ac-clermont
+                - ac-dijon
+                - ac-grenoble
+                - ac-lille
+                - ac-limoges
+                - ac-lyon
+                - ac-montpellier
+                - ac-nancy-metz
+                - ac-nantes
+                - ac-orleans-tours
+                - ac-poitiers
+                - ac-reims
+                - ac-rouen
+                - ac-strasbourg
+                - ac-toulouse
+                - agora06
+                - arsene76
+                - atrium-sud
+                - haute-garonne
+                - hdf
+                - iledefrance
+                - seine-et-marne
+                - somme
+                - eure-normandie
+                - parisclassenumerique
+                - ljr-munich
+                - toutatice
+                - laclasse
+                - lyceeconnecte
+                - portail-famille
+                - cybercolleges42
+                - none
+            username:
+              type: string
+              required: true
+              example: g.coys1
+            password:
+              type: string
+              format: password
+              required: true
+              example: #PassWord123
+    properties:
+      responses:
+        401:
+          description: Unauthorized
+          example:
+            message: You are not logged in
+        500:
+          description: Internal Server Error
+          example:
+            message: Could not create connection, please try again
+        200:
+          description: Success
+          example:
+            message: 'Successfully created connection'
+
+/connections/{id}:
+  get:
+    tags:
+      - Connections
+      - NeedAuthentication
+    summary: Get user connection by ID
+    parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+        description: Numeric ID of the user connection to get
+    properties:
+      responses:
+        401:
+          description: Unauthorized
+          example:
+            message: You are not logged in
+        404:
+          description: Not Found
+          example:
+            message: Connection not found
+        500:
+          description: Internal Server Error
+          example:
+            message: Unable to get connection
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    example: 6247
+                  userId:
+                    type: integer
+                    example: 3623
+                  username:
+                    type: string
+                    example: g.coys1
+                  password:
+                    type: string
+                    format: hiddenPassword
+                    example: #P*********3
+                  url:
+                    type: string
+                    format: url
+                    example: https://41892za15.index-education/pronote
+                  cas:
+                    type: string
+                    enum:
+                      - ac-besancon
+                      - ac-bordeaux
+                      - ac-bordeaux2
+                      - ac-bordeaux3
+                      - ac-caen
+                      - ac-clermont
+                      - ac-dijon
+                      - ac-grenoble
+                      - ac-lille
+                      - ac-limoges
+                      - ac-lyon
+                      - ac-montpellier
+                      - ac-nancy-metz
+                      - ac-nantes
+                      - ac-orleans-tours
+                      - ac-poitiers
+                      - ac-reims
+                      - ac-rouen
+                      - ac-strasbourg
+                      - ac-toulouse
+                      - agora06
+                      - arsene76
+                      - atrium-sud
+                      - haute-garonne
+                      - hdf
+                      - iledefrance
+                      - seine-et-marne
+                      - somme
+                      - eure-normandie
+                      - parisclassenumerique
+                      - ljr-munich
+                      - toutatice
+                      - laclasse
+                      - lyceeconnecte
+                      - portail-famille
+                      - cybercolleges42
+                      - none
+
+/connections/{id}/update:
+  post:
+    tags:
+      - Connections
+      - NeedAuthentication
+    summary: Get user connection by ID
+    parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+        required: true
+        description: Numeric ID of the user connection to get
+      - name: changes
+        in: body
+        required: true
+        schema:
+          properties:
+            username:
+              type: string
+              example: g.coys1
+              required: false
+            password:
+              type: string
+              format: password
+              example: #PassWord123
+            url:
+              type: string
+              format: url
+              example: https://41892za15.index-education/pronote
+            cas:
+              type: string
+              required: false
+              enum:
+                - ac-besancon
+                - ac-bordeaux
+                - ac-bordeaux2
+                - ac-bordeaux3
+                - ac-caen
+                - ac-clermont
+                - ac-dijon
+                - ac-grenoble
+                - ac-lille
+                - ac-limoges
+                - ac-lyon
+                - ac-montpellier
+                - ac-nancy-metz
+                - ac-nantes
+                - ac-orleans-tours
+                - ac-poitiers
+                - ac-reims
+                - ac-rouen
+                - ac-strasbourg
+                - ac-toulouse
+                - agora06
+                - arsene76
+                - atrium-sud
+                - haute-garonne
+                - hdf
+                - iledefrance
+                - seine-et-marne
+                - somme
+                - eure-normandie
+                - parisclassenumerique
+                - ljr-munich
+                - toutatice
+                - laclasse
+                - lyceeconnecte
+                - portail-famille
+                - cybercolleges42
+                - none
+    properties:
+      responses:
+        401:
+          description: Unauthorized
+          example:
+            message: You are not logged in
+        404:
+          description: Not Found
+          example:
+            message: Connection not found
+        500:
+          description: Internal Server Error
+          example:
+            message: Unable to get connection
+        200:
+          description: Success
+          example:
+            message: Sucessfully updated

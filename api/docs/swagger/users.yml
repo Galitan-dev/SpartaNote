@@ -1,0 +1,104 @@
+/users/create:
+  post:
+    tags:
+      - Users
+      - AsGuest
+    summary: Create a new user
+    parameters:
+      - name: informations
+        in: body
+        required: true
+        schema:
+          properties:
+            username:
+              type: string
+              example: Galitan
+              required: true
+            email:
+              type: string
+              format: email
+              example: galitan.dev@gmail.com
+              required: true
+            password:
+              type: string
+              format: password
+              example: #PassWord123
+              required: true
+            rememberMe:
+              type: boolean
+              example: true
+              required: true
+    properties:
+      responses:
+        200:
+          description: Success
+          example:
+            message: Successfully created user
+        400:
+          description: Bad Request
+          example:
+            message: Email already exists
+        500:
+          description: Internal Server Error
+          example:
+            message: Could not create user, please try again.
+
+/users/me:
+  get:
+    tags:
+      - Users
+      - NeedAuthentication
+    summary: Get self user
+    properties:
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: number
+                    example: 3512
+                  username:
+                    type: string
+                    example: Galitan
+                  email:
+                    type: string
+                    example: galitan.dev@gmail.com
+        401:
+          description: Unauthorized
+          example:
+            message: You are not logged in
+
+/users/{id}:
+  get:
+    tags:
+      - Users
+      - AsGuest
+    summary: Get a user by ID
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: Numeric ID of the user to get
+    properties:
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: number
+                    example: 3512
+                  username:
+                    type: string
+                    example: Galitan
+        404:
+          description: Not Found
+          example:
+            message: User does not exist
