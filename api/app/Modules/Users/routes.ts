@@ -1,9 +1,20 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.post('/auth/login', 'Auth.login')
-  Route.get('/auth/logout', 'Auth.logout')
-  Route.post('/users/create', 'Users.create')
-  Route.get('/users/me', 'Users.me')
-  Route.get('/users/:id', 'Users.get')
+  Route.group(() => {
+    Route.post('/login', 'Auth.login')
+    Route.get('/ogout', 'Auth.logout')
+  }).prefix('/auth')
+
+  Route.group(() => {
+    Route.post('/create', 'Users.create')
+    Route.get('/me', 'Users.me')
+    Route.get('/:id', 'Users.get')
+  }).prefix('/users')
+
+  Route.group(() => {
+    Route.get('/:id', 'Connections.get')
+    Route.post('/create', 'Connections.get')
+    Route.get('/', 'Connections.list')
+  }).prefix('/connections')
 }).namespace('App/Modules/Users/Controllers')
