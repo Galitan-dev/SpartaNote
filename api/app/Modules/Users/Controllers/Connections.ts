@@ -60,17 +60,21 @@ export default class ConnectionsController {
     }
 
     response.json(
-      connections.map((con) => ({
-        id: con.userId,
-        userId: con.userId,
-        username: con.username,
-        password: con.password
-          .split('')
-          .map((c, i) => ([0, 1, con.password.length - 1].includes(i) ? c : '*'))
-          .join(''),
-        url: con.url,
-        cas: con.cas,
-      }))
+      connections.map((con) => {
+        let password: string = Encryption.decrypt(con.password)!
+
+        return {
+          id: con.id,
+          userId: con.userId,
+          username: con.username,
+          password: password
+            .split('')
+            .map((c, i) => ([0, 1, password.length - 1].includes(i) ? c : '*'))
+            .join(''),
+          url: con.url,
+          cas: con.cas,
+        }
+      })
     )
   }
 
@@ -98,7 +102,7 @@ export default class ConnectionsController {
     let password: string = Encryption.decrypt(con.password)!
 
     response.json({
-      id: con.userId,
+      id: con.id,
       userId: con.userId,
       username: con.username,
       password: password
