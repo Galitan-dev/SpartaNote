@@ -14,7 +14,7 @@ Route.group(() => {
 
   Route.group(() => {
     Route.get('/:id', 'Connections.get')
-    Route.post('/create', 'Connections.get')
+    Route.post('/create', 'Connections.create')
     Route.get('/', 'Connections.list')
   }).prefix('/connections')
 }).namespace('App/Modules/Users/Controllers')
