@@ -1,8 +1,10 @@
+import Encryption from '@ioc:Adonis/Core/Encryption'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { casList, errors } from 'Pronote/index'
-import SessionManager from '../SessionManager'
+import User from 'App/Models/User'
+import UserConnection from 'App/Models/UserConnection'
+import { errors } from 'Pronote/index'
 import { URL } from 'url'
+import SessionManager from '../SessionManager'
 
 export default class SessionsController {
   private static sessionManager: SessionManager = new SessionManager()
@@ -11,54 +13,63 @@ export default class SessionsController {
     return SessionsController.sessionManager
   }
 
-  public async create({ request, response }: HttpContextContract) {
-    const optionsSchema = schema.create({
-      cas: schema.enum(casList),
-      url: schema.string({}, [rules.pronoteUrl()]),
-      username: schema.string(),
-      password: schema.string(),
-    })
+  public async open({ request, response, auth }: HttpContextContract) {
+    let user: User
+    try {
+      user = await auth.use('web').authenticate()
+    } catch (err) {
+      console.error(err)
+      return response.unauthorized('You are not logged in')
+    }
 
-    const options = await request.validate({ schema: optionsSchema })
+    let con: UserConnection | null
+    try {
+      con = await UserConnection.find(request.param('id'))
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to get connection')
+    }
+
+    if (!con || con.userId !== user.id) {
+      return response.notFound('Connection not found')
+    }
+
+    if (this.sessionManager.getSession(con.id)) {
+      return response.abort('Session already opened')
+    }
 
     try {
-      const session = await this.sessionManager.createSession(options)
-      return { code: 200, sessionId: session.id }
+      await this.sessionManager.createSession({
+        userId: user.id,
+        connectionId: con.id,
+        url: con.url,
+        cas: con.cas,
+        username: con.username,
+        password: Encryption.decrypt(con.password)!,
+      })
     } catch (err) {
-      if (err.code === errors.CLOSED.code) {
-        response.serviceUnavailable({
-          code: 503,
-          message: 'Pronote is currently not available',
-        })
-      } else if (err.code === errors.WRONG_CREDENTIALS.code) {
-        response.unauthorized({
-          code: 401,
-          message:
-            'Wrong credentials. You may have to use a cas, contact the support for more help.',
-        })
-      } else if (err.code === 'ENOTFOUND') {
-        response.notFound({
-          code: 404,
-          message: 'Domain not found: ' + err.message.split(' ').at(-1),
-        })
-      } else {
-        response.internalServerError({
-          code: err.code,
-          message: err.message,
-        })
+      switch (err.code) {
+        case errors.CLOSED.code:
+          return response.serviceUnavailable('Pronote is currently not available')
+        case errors.WRONG_CREDENTIALS.code:
+          return response.unauthorized(
+            'Wrong credentials. You may have to use a cas, contact the support for more help.'
+          )
+        case 'ENOTFOUND':
+          return response.notFound('Domain not found')
+        default:
+          return response.internalServerError({
+            code: err.code,
+            message: err.message,
+          })
       }
     }
+
+    return 'Session successfully opened'
   }
 
-  public async get({ request, response }: HttpContextContract) {
+  public async get({ request, response, auth }: HttpContextContract) {
     const id = request.param('id')
-    if (!id || isNaN(id)) {
-      response.badRequest({
-        code: 400,
-        message: 'id verification failed',
-      })
-      return
-    }
 
     const scope = new URL(request.completeUrl(true)).searchParams.get('scope') || 'user'
     if (
@@ -73,49 +84,65 @@ export default class SessionsController {
       return
     }
 
+    let user: User
     try {
-      const session = await this.sessionManager.getSession(parseInt(id))
-
-      const scopedUser = scope.includes('advancedUser')
-        ? session.user
-        : scope.includes('user')
-        ? {
-            id: session.user?.id,
-            name: session.user?.name,
-            establishment: session.user?.establishment,
-            avatar: session.user?.avatar,
-            class: session.user?.studentClass,
-          }
-        : undefined
-
-      const scopedSession = {
-        id: session.id,
-        user: scopedUser,
-      }
-
-      for (const key of scope
-        .split(',')
-        .filter((s) => s.length > 1 && !s.toLowerCase().includes('user'))) {
-        if (typeof session[key] === 'function') {
-          scopedSession[key] = await session[key]()
-        } else {
-          scopedSession[key] = session[key]
-        }
-      }
-
-      return { code: 200, session: scopedSession }
+      user = await auth.use('web').authenticate()
     } catch (err) {
-      if (err.name === 'notFound') {
-        response.notFound({
-          code: 404,
-          message: err.message,
-        })
+      console.error(err)
+      return response.unauthorized('You are not logged in')
+    }
+
+    let con: UserConnection | null
+    try {
+      con = await UserConnection.find(request.param('id'))
+    } catch (err) {
+      console.error(err)
+      return response.internalServerError('Unable to get connection')
+    }
+
+    if (!con || con.userId !== user.id) {
+      return response.notFound('Connection not found')
+    }
+
+    if (this.sessionManager.getSession(con.id)) {
+      return response.abort('Session already opened')
+    }
+
+    let session = await this.sessionManager.getSession(con.id)
+
+    if (!session) {
+      return response.abort('Session not yet opened')
+    }
+
+    let { pronote } = session
+
+    const scopedUser = scope.includes('advancedUser')
+      ? pronote.user
+      : scope.includes('user')
+      ? {
+          id: pronote.user?.id,
+          name: pronote.user?.name,
+          establishment: pronote.user?.establishment,
+          avatar: pronote.user?.avatar,
+          class: pronote.user?.studentClass,
+        }
+      : undefined
+
+    const scopedSession = {
+      id: session.connectionId,
+      user: scopedUser,
+    }
+
+    for (const key of scope
+      .split(',')
+      .filter((s) => s.length > 1 && !s.toLowerCase().includes('user'))) {
+      if (typeof pronote[key] === 'function') {
+        scopedSession[key] = await pronote[key]()
       } else {
-        response.internalServerError({
-          code: 500,
-          message: err.message,
-        })
+        scopedSession[key] = pronote[key]
       }
     }
+
+    return scopedSession
   }
 }

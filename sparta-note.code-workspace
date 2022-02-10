@@ -6,5 +6,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }
